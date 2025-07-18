@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Racing Fury</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: #f7f7f7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .game-container {
+      max-width: 800px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(108, 92, 231, 0.5);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .logo i {
+      color: #fd79a8;
+    }
+    
+    .back-button {
+      background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      color: white;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+    }
+    
+    .game-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(to right, #ff9a9e, #fad0c4, #a18cd1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .game-description {
+      text-align: center;
+      color: #b2bec3;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-box {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 15px 25px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 120px;
+    }
+    
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #6c5ce7;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: #b2bec3;
+    }
+    
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    }
+    
+    #gameCanvas {
+      background: linear-gradient(to bottom, #2c3e50, #4a6491);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .control-button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .control-button:hover {
+      background: rgba(108, 92, 231, 0.7);
+    }
+    
+    .instructions {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      max-width: 500px;
+    }
+    
+    .instructions h3 {
+      color: #6c5ce7;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .instructions ul {
+      padding-left: 20px;
+      color: #b2bec3;
+      line-height: 1.6;
+    }
+    
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    
+    .win-message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    
+    .win-message.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .win-content {
+      background: #1a1a2e;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      transform: scale(0.8);
+      transition: transform 0.5s;
+    }
+    
+    .win-message.show .win-content {
+      transform: scale(1);
+    }
+    
+    .win-title {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #6c5ce7;
+    }
+    
+    .win-stats {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #b2bec3;
+    }
+    
+    .win-button {
+      background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      color: white;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .win-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+    }
+    
+    @media (max-width: 600px) {
+      .stats {
+        gap: 15px;
+      }
+      
+      .stat-box {
+        padding: 10px 15px;
+        min-width: 90px;
+      }
+      
+      .stat-value {
+        font-size: 1.5rem;
+      }
+      
+      #gameCanvas {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </div>
+      <button class="back-button" id="backButton">
+        <i class="fas fa-arrow-left"></i> Back to Hub
+      </button>
+    </div>
+    
+    <h1 class="game-title">Racing Fury</h1>
+    <p class="game-description">Experience high-speed thrills in the ultimate racing challenge. Avoid obstacles and set new records!</p>
+    
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-value" id="score">0</div>
+        <div class="stat-label">Score</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="speed">0</div>
+        <div class="stat-label">KM/H</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="time">0</div>
+        <div class="stat-label">Time</div>
+      </div>
+    </div>
+    
+    <div class="game-area">
+      <canvas id="gameCanvas" width="600" height="500"></canvas>
+      
+      <div class="controls">
+        <button class="control-button" id="restartButton">
+          <i class="fas fa-redo"></i> Restart Game
+        </button>
+        <button class="control-button" id="boostButton">
+          <i class="fas fa-bolt"></i> Nitro Boost
+        </button>
+      </div>
+      
+      <div class="instructions">
+        <h3><i class="fas fa-info-circle"></i> How to Play</h3>
+        <ul>
+          <li>Use <strong>Left and Right Arrow Keys</strong> to steer your car</li>
+          <li>Press <strong>Up Arrow</strong> to accelerate</li>
+          <li>Press <strong>Down Arrow</strong> to brake</li>
+          <li>Avoid other cars and obstacles</li>
+          <li>Collect coins to increase your score</li>
+          <li>Use Nitro Boost for extra speed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <div class="win-message" id="winMessage">
+    <div class="win-content">
+      <h2 class="win-title">Race Complete!</h2>
+      <p class="win-stats">Your score: <span id="finalScore">0</span></p>
+      <p class="win-stats">Top speed: <span id="finalSpeed">0</span> KM/H</p>
+      <button class="win-button" id="playAgainButton">Race Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Game configuration
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Game state
+    const playerCar = {
+      x: canvas.width / 2 - 25,
+      y: canvas.height - 100,
+      width: 50,
+      height: 90,
+      speed: 0,
+      maxSpeed: 300,
+      acceleration: 0.5,
+      deceleration: 0.3,
+      steering: 0,
+      color: '#e74c3c',
+      nitro: 100,
+      coins: 0
+    };
+    
+    const road = {
+      width: 400,
+      x: (canvas.width - 400) / 2,
+      markings: [],
+      curve: 0
+    };
+    
+    let cars = [];
+    let coins = [];
+    let obstacles = [];
+    let score = 0;
+    let gameTime = 0;
+    let gameRunning = false;
+    let gameOver = false;
+    let animationId;
+    let lastTime = 0;
+    
+    // DOM elements
+    const scoreElement = document.getElementById('score');
+    const speedElement = document.getElementById('speed');
+    const timeElement = document.getElementById('time');
+    const restartButton = document.getElementById('restartButton');
+    const boostButton = document.getElementById('boostButton');
+    const winMessage = document.getElementById('winMessage');
+    const finalScore = document.getElementById('finalScore');
+    const finalSpeed = document.getElementById('finalSpeed');
+    const playAgainButton = document.getElementById('playAgainButton');
+    const backButton = document.getElementById('backButton');
+    
+    // Initialize game
+    function initGame() {
+      // Reset player car
+      playerCar.x = canvas.width / 2 - 25;
+      playerCar.y = canvas.height - 100;
+      playerCar.speed = 0;
+      playerCar.nitro = 100;
+      playerCar.coins = 0;
+      
+      // Reset game state
+      cars = [];
+      coins = [];
+      obstacles = [];
+      score = 0;
+      gameTime = 0;
+      gameRunning = true;
+      gameOver = false;
+      
+      // Initialize road markings
+      road.markings = [];
+      for (let i = 0; i < 20; i++) {
+        road.markings.push({
+          y: i * 100 - 50,
+          offset: 0
+        });
+      }
+      
+      // Update UI
+      scoreElement.textContent = score;
+      speedElement.textContent = Math.round(playerCar.speed);
+      timeElement.textContent = gameTime.toFixed(1);
+      winMessage.classList.remove('show');
+      
+      // Start game loop
+      if (animationId) cancelAnimationFrame(animationId);
+      lastTime = performance.now();
+      animationId = requestAnimationFrame(gameLoop);
+      
+      // Start spawning
+      spawnCars();
+      spawnCoins();
+      spawnObstacles();
+    }
+    
+    // Draw road
+    function drawRoad() {
+      // Draw road
+      ctx.fillStyle = '#2c3e50';
+      ctx.fillRect(road.x, 0, road.width, canvas.height);
+      
+      // Draw road markings
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([20, 20]);
+      
+      road.markings.forEach(marking => {
+        ctx.beginPath();
+        ctx.moveTo(road.x + road.width/2 - 5 + marking.offset, marking.y);
+        ctx.lineTo(road.x + road.width/2 + 5 + marking.offset, marking.y);
+        ctx.stroke();
+      });
+      
+      ctx.setLineDash([]);
+      
+      // Draw road borders
+      ctx.strokeStyle = '#e74c3c';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(road.x, 0);
+      ctx.lineTo(road.x, canvas.height);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(road.x + road.width, 0);
+      ctx.lineTo(road.x + road.width, canvas.height);
+      ctx.stroke();
+    }
+    
+    // Draw player car
+    function drawPlayerCar() {
+      ctx.fillStyle = playerCar.color;
+      ctx.fillRect(playerCar.x, playerCar.y, playerCar.width, playerCar.height);
+      
+      // Draw car details
+      ctx.fillStyle = '#f1c40f';
+      ctx.fillRect(playerCar.x + 5, playerCar.y + 10, 40, 20); // windshield
+      ctx.fillRect(playerCar.x + 5, playerCar.y + 60, 40, 20); // rear window
+      
+      ctx.fillStyle = '#3498db';
+      ctx.fillRect(playerCar.x + 10, playerCar.y + 35, 10, 20); // left window
+      ctx.fillRect(playerCar.x + 30, playerCar.y + 35, 10, 20); // right window
+      
+      // Draw wheels
+      ctx.fillStyle = '#2c3e50';
+      ctx.fillRect(playerCar.x - 5, playerCar.y + 10, 5, 20); // front left
+      ctx.fillRect(playerCar.x - 5, playerCar.y + 60, 5, 20); // rear left
+      ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + 10, 5, 20); // front right
+      ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + 60, 5, 20); // rear right
+      
+      // Draw nitro
+      if (playerCar.nitro > 0) {
+        ctx.fillStyle = '#f39c12';
+        ctx.fillRect(playerCar.x + 10, playerCar.y + playerCar.height, 30, 5);
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(playerCar.x + 10, playerCar.y + playerCar.height, 30 * (playerCar.nitro / 100), 5);
+      }
+    }
+    
+    // Spawn other cars
+    function spawnCars() {
+      if (!gameRunning) return;
+      
+      cars.push({
+        x: road.x + 50 + Math.random() * (road.width - 100),
+        y: -100,
+        width: 50,
+        height: 90,
+        speed: 5 + Math.random() * 5,
+        color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+        lane: Math.floor(Math.random() * 3)
+      });
+      
+      setTimeout(spawnCars, 2000);
+    }
+    
+    // Spawn coins
+    function spawnCoins() {
+      if (!gameRunning) return;
+      
+      coins.push({
+        x: road.x + 50 + Math.random() * (road.width - 100),
+        y: -30,
+        width: 20,
+        height: 20,
+        collected: false
+      });
+      
+      setTimeout(spawnCoins, 1000);
+    }
+    
+    // Spawn obstacles
+    function spawnObstacles() {
+      if (!gameRunning) return;
+      
+      obstacles.push({
+        x: road.x + 50 + Math.random() * (road.width - 100),
+        y: -50,
+        width: 60,
+        height: 30,
+        type: Math.random() > 0.5 ? 'cone' : 'oil'
+      });
+      
+      setTimeout(spawnObstacles, 3000);
+    }
+    
+    // Draw other cars
+    function drawOtherCars() {
+      cars.forEach((car, index) => {
+        car.y += car.speed;
+        
+        if (car.y > canvas.height) {
+          cars.splice(index, 1);
+          return;
+        }
+        
+        // Move car based on lane
+        const targetX = road.x + 50 + car.lane * (road.width - 100) / 2;
+        car.x += (targetX - car.x) * 0.05;
+        
+        ctx.fillStyle = car.color;
+        ctx.fillRect(car.x, car.y, car.width, car.height);
+        
+        // Draw car details
+        ctx.fillStyle = '#f1c40f';
+        ctx.fillRect(car.x + 5, car.y + 10, 40, 20);
+        ctx.fillRect(car.x + 5, car.y + 60, 40, 20);
+        
+        ctx.fillStyle = '#3498db';
+        ctx.fillRect(car.x + 10, car.y + 35, 10, 20);
+        ctx.fillRect(car.x + 30, car.y + 35, 10, 20);
+        
+        // Check collision with player
+        if (
+          playerCar.x < car.x + car.width &&
+          playerCar.x + playerCar.width > car.x &&
+          playerCar.y < car.y + car.height &&
+          playerCar.y + playerCar.height > car.y
+        ) {
+          gameOver = true;
+        }
+      });
+    }
+    
+    // Draw coins
+    function drawCoins() {
+      coins.forEach((coin, index) => {
+        coin.y += playerCar.speed * 0.1;
+        
+        if (coin.y > canvas.height) {
+          coins.splice(index, 1);
+          return;
+        }
+        
+        if (!coin.collected) {
+          ctx.fillStyle = '#f1c40f';
+          ctx.beginPath();
+          ctx.arc(coin.x + coin.width/2, coin.y + coin.height/2, coin.width/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#e67e22';
+          ctx.font = 'bold 14px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('$', coin.x + coin.width/2, coin.y + coin.height/2);
+          
+          // Check collision with player
+          if (
+            playerCar.x < coin.x + coin.width &&
+            playerCar.x + playerCar.width > coin.x &&
+            playerCar.y < coin.y + coin.height &&
+            playerCar.y + playerCar.height > coin.y
+          ) {
+            coin.collected = true;
+            coins.splice(index, 1);
+            score += 50;
+            scoreElement.textContent = score;
+          }
+        }
+      });
+    }
+    
+    // Draw obstacles
+    function drawObstacles() {
+      obstacles.forEach((obstacle, index) => {
+        obstacle.y += playerCar.speed * 0.1;
+        
+        if (obstacle.y > canvas.height) {
+          obstacles.splice(index, 1);
+          return;
+        }
+        
+        if (obstacle.type === 'cone') {
+          ctx.fillStyle = '#e74c3c';
+          ctx.beginPath();
+          ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y);
+          ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
+          ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#2c3e50';
+          ctx.beginPath();
+          ctx.arc(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2, obstacle.width/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#7f8c8d';
+          ctx.font = 'bold 14px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('OIL', obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
+        }
+        
+        // Check collision with player
+        if (
+          playerCar.x < obstacle.x + obstacle.width &&
+          playerCar.x + playerCar.width > obstacle.x &&
+          playerCar.y < obstacle.y + obstacle.height &&
+          playerCar.y + playerCar.height > obstacle.y
+        ) {
+          playerCar.speed = Math.max(playerCar.speed - 70, 0);
+          obstacles.splice(index, 1);
+        }
+      });
+    }
+    
+    // Game loop
+    function gameLoop(timestamp) {
+      const deltaTime = (timestamp - lastTime) / 16.666; // Normalize to 60fps
+      lastTime = timestamp;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Update game time
+      if (gameRunning) {
+        gameTime += deltaTime / 60;
+        timeElement.textContent = gameTime.toFixed(1);
+      }
+      
+      // Update road markings
+      road.markings.forEach(marking => {
+        marking.y += playerCar.speed * 0.05;
+        if (marking.y > canvas.height) {
+          marking.y = -50;
+        }
+        
+        // Add curve effect
+        marking.offset = Math.sin(marking.y / 50) * 20;
+      });
+      
+      // Draw game elements
+      drawRoad();
+      drawPlayerCar();
+      drawOtherCars();
+      drawCoins();
+      drawObstacles();
+      
+      // Update speed display
+      speedElement.textContent = Math.round(playerCar.speed);
+      
+      // Check game over
+      if (gameOver && gameRunning) {
+        gameRunning = false;
+        finalScore.textContent = score;
+        finalSpeed.textContent = Math.round(playerCar.speed);
+        winMessage.classList.add('show');
+      }
+      
+      if (gameRunning) {
+        animationId = requestAnimationFrame(gameLoop);
+      }
+    }
+    
+    // Handle keyboard input
+    function handleKeyDown(e) {
+      if (!gameRunning) return;
+      
+      switch (e.key) {
+        case 'ArrowUp':
+          playerCar.speed = Math.min(playerCar.speed + playerCar.acceleration, playerCar.maxSpeed);
+          break;
+        case 'ArrowDown':
+          playerCar.speed = Math.max(playerCar.speed - playerCar.deceleration * 2, 0);
+          break;
+        case 'ArrowLeft':
+          playerCar.x = Math.max(playerCar.x - 7, road.x + 10);
+          break;
+        case 'ArrowRight':
+          playerCar.x = Math.min(playerCar.x + 7, road.x + road.width - playerCar.width - 10);
+          break;
+      }
+    }
+    
+    // Handle nitro boost
+    function handleNitro() {
+      if (playerCar.nitro > 0 && gameRunning) {
+        playerCar.speed = Math.min(playerCar.speed + 20, playerCar.maxSpeed + 50);
+        playerCar.nitro -= 10;
+      }
+    }
+    
+    // Event listeners
+    document.addEventListener('keydown', handleKeyDown);
+    boostButton.addEventListener('click', handleNitro);
+    restartButton.addEventListener('click', initGame);
+    playAgainButton.addEventListener('click', initGame);
+    backButton.addEventListener('click', () => {
+      window.location.href = '../../index.html';
+    });
+    
+    // Initialize the game
+    initGame();
+  </script>
+</body>
+</html>

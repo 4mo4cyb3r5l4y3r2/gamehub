@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: #f7f7f7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .game-container {
+      max-width: 800px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(108, 92, 231, 0.5);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .logo i {
+      color: #fd79a8;
+    }
+    
+    .back-button {
+      background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      color: white;
+      padding: 8px 20px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .back-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+    }
+    
+    .game-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(to right, #ff9a9e, #fad0c4, #a18cd1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .game-description {
+      text-align: center;
+      color: #b2bec3;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+    }
+    
+    .cell {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .cell.x {
+      color: #6c5ce7;
+    }
+    
+    .cell.o {
+      color: #fd79a8;
+    }
+    
+    .status {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      text-align: center;
+      min-height: 40px;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .control-button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .control-button:hover {
+      background: rgba(108, 92, 231, 0.7);
+    }
+    
+    .win-message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    
+    .win-message.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .win-content {
+      background: #1a1a2e;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      transform: scale(0.8);
+      transition: transform 0.5s;
+    }
+    
+    .win-message.show .win-content {
+      transform: scale(1);
+    }
+    
+    .win-title {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #6c5ce7;
+    }
+    
+    .win-stats {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #b2bec3;
+    }
+    
+    .win-button {
+      background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      color: white;
+      padding: 12px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .win-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+    }
+    
+    @media (max-width: 600px) {
+      .board {
+        width: 280px;
+        height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="header">
+      <div class="logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </div>
+      <button class="back-button" id="backButton">
+        <i class="fas fa-arrow-left"></i> Back to Hub
+      </button>
+    </div>
+    
+    <h1 class="game-title">Tic Tac Toe</h1>
+    <p class="game-description">The classic strategy game. Play against the computer in this timeless battle of X's and O's.</p>
+    
+    <div class="game-area">
+      <div class="status" id="status">Your turn (X)</div>
+      
+      <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+      </div>
+      
+      <div class="controls">
+        <button class="control-button" id="restartButton">
+          <i class="fas fa-redo"></i> Restart Game
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="win-message" id="winMessage">
+    <div class="win-content">
+      <h2 class="win-title" id="winTitle">Congratulations!</h2>
+      <p class="win-stats" id="winText">You won the game!</p>
+      <button class="win-button" id="playAgainButton">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Game state
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let gameActive = true;
+    
+    // DOM elements
+    const cells = document.querySelectorAll('.cell');
+    const statusElement = document.getElementById('status');
+    const winMessage = document.getElementById('winMessage');
+    const winTitle = document.getElementById('winTitle');
+    const winText = document.getElementById('winText');
+    const restartButton = document.getElementById('restartButton');
+    const playAgainButton = document.getElementById('playAgainButton');
+    const backButton = document.getElementById('backButton');
+    
+    // Winning combinations
+    const winConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+      [0, 4, 8], [2, 4, 6]             // diagonals
+    ];
+    
+    // Initialize game
+    function initGame() {
+      board = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      gameActive = true;
+      
+      // Clear board
+      cells.forEach(cell => {
+        cell.textContent = '';
+        cell.classList.remove('x', 'o');
+      });
+      
+      // Update status
+      statusElement.textContent = "Your turn (X)";
+      
+      // Hide win message
+      winMessage.classList.remove('show');
+    }
+    
+    // Handle cell click
+    function handleCellClick(e) {
+      const cell = e.target;
+      const index = parseInt(cell.dataset.index);
+      
+      // Check if cell is empty and game is active
+      if (board[index] !== '' || !gameActive) return;
+      
+      // Update board
+      board[index] = currentPlayer;
+      cell.textContent = currentPlayer;
+      cell.classList.add(currentPlayer.toLowerCase());
+      
+      // Check for win or draw
+      if (checkWin()) {
+        endGame(false);
+        return;
+      } else if (checkDraw()) {
+        endGame(true);
+        return;
+      }
+      
+      // Switch player
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      statusElement.textContent = currentPlayer === 'X' ? 
+        "Your turn (X)" : "Computer's turn (O)";
+      
+      // Computer's turn
+      if (currentPlayer === 'O' && gameActive) {
+        setTimeout(computerMove, 600);
+      }
+    }
+    
+    // Computer's move
+    function computerMove() {
+      // Simple AI - find best move
+      let bestMove = -1;
+      
+      // Try to win
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === '') {
+          board[i] = 'O';
+          if (checkWin('O')) {
+            bestMove = i;
+            board[i] = '';
+            break;
+          }
+          board[i] = '';
+        }
+      }
+      
+      // Block player if can't win
+      if (bestMove === -1) {
+        for (let i = 0; i < 9; i++) {
+          if (board[i] === '') {
+            board[i] = 'X';
+            if (checkWin('X')) {
+              bestMove = i;
+              board[i] = '';
+              break;
+            }
+            board[i] = '';
+          }
+        }
+      }
+      
+      // Choose center if available
+      if (bestMove === -1 && board[4] === '') {
+        bestMove = 4;
+      }
+      
+      // Choose random if no better move
+      if (bestMove === -1) {
+        const emptyCells = board
+          .map((cell, index) => cell === '' ? index : null)
+          .filter(cell => cell !== null);
+        
+        if (emptyCells.length > 0) {
+          bestMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        }
+      }
+      
+      // Make the move
+      if (bestMove !== -1) {
+        board[bestMove] = 'O';
+        cells[bestMove].textContent = 'O';
+        cells[bestMove].classList.add('o');
+        
+        // Check for win or draw
+        if (checkWin()) {
+          endGame(false);
+        } else if (checkDraw()) {
+          endGame(true);
+        } else {
+          currentPlayer = 'X';
+          statusElement.textContent = "Your turn (X)";
+        }
+      }
+    }
+    
+    // Check for win
+    function checkWin(player = currentPlayer) {
+      return winConditions.some(condition => {
+        return condition.every(index => {
+          return board[index] === player;
+        });
+      });
+    }
+    
+    // Check for draw
+    function checkDraw() {
+      return board.every(cell => cell !== '');
+    }
+    
+    // End game
+    function endGame(isDraw) {
+      gameActive = false;
+      
+      if (isDraw) {
+        winTitle.textContent = "It's a Draw!";
+        winText.textContent = "No one wins this round.";
+      } else {
+        if (currentPlayer === 'X') {
+          winTitle.textContent = "You Win!";
+          winText.textContent = "Congratulations on your victory!";
+        } else {
+          winTitle.textContent = "Computer Wins!";
+          winText.textContent = "Better luck next time!";
+        }
+      }
+      
+      winMessage.classList.add('show');
+    }
+    
+    // Event listeners
+    cells.forEach(cell => {
+      cell.addEventListener('click', handleCellClick);
+    });
+    
+    restartButton.addEventListener('click', initGame);
+    playAgainButton.addEventListener('click', initGame);
+    backButton.addEventListener('click', () => {
+      window.location.href = '../../index.html';
+    });
+    
+    // Initialize the game
+    initGame();
+  </script>
+</body>
+</html>
